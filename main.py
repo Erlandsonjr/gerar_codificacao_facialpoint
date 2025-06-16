@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import face_recognition
 import numpy as np
 import cv2
@@ -27,11 +28,10 @@ async def gerar_codificacao(file: UploadFile = File(...)):
 
     rostos = face_recognition.face_locations(img_rgb)
     if not rostos:
-        return False
+        return JSONResponse(status_code=400, content={"detail": "Nenhum rosto detectado na imagem."})
 
     codificacoes = face_recognition.face_encodings(img_rgb, rostos)
-
     if not codificacoes:
-        return False
+        return JSONResponse(status_code=400, content={"detail": "Não foi possível gerar codificação facial."})
 
     return codificacoes[0].tolist()
